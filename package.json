@@ -1,0 +1,15 @@
+{
+  "name": "safekeyz",
+  "version": "1.0.0",
+  "description": "\"SafeKeyz is a digital locker application\"",
+  "main": "app.js",
+  "scripts": {
+    "start" : "node src/app.js",
+    "dev" : "nodemon src/app.js"
+  },
+  "author": "Rishi Pandey",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.21.2"
+  }
+}
