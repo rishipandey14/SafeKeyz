@@ -12,6 +12,7 @@ const userSchema = mongoose.Schema({
   },
   lastName : {
     type : String,
+    required: true,
     lowercase : true,
     trim : true,
     maxLength: 50,
@@ -48,7 +49,7 @@ const userSchema = mongoose.Schema({
       if(!validator.isURL(value)) throw new Error("Invalid Url!!");
     }
   },
-});
+}, {timestamps : true});
 
 
 module.exports = mongoose.model("User", userSchema);
