@@ -37,6 +37,33 @@ authRouter.post("/signup", async (req, res) => {
   }
 });
 
+// login API
+authRouter.post("/login", async (req, res) => {
+  try {
+    const {emailId, password} = req.body;
+
+    const user = await User.findOne({emailId : emailId});   // validate emailId
+    if(!user) throw new Error("Invalid credentials");
+
+    const isPasswordValid = await user.validatePassword(password);  // validate password
+
+    if(isPasswordValid) {
+      const token = await user.getJWT();  // create JWT token
+
+      // add the token in cookie and send response back to the user
+      res.cookie("token", token, {expires : new Date(Date.now() + 8 * 3600000)});
+      res.json({
+        message : "Login successfully",
+        data : user,
+      });
+    }
+  } catch (err) {
+    res.status(400).json({
+      error : err.message,
+    });
+  }
+});
+
 
 
 
