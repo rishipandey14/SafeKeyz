@@ -19,7 +19,6 @@ app.use("/", authRouter);
 
 connectDb()
   .then(() => {
-    console.log("Database connected Successfully");
     app.listen(7000, () => {
       console.log("hello from server");
     });
