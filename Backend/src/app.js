@@ -26,5 +26,5 @@ connectDb()
     });
   })
   .catch((err) => {
-    console.log("Database connection failed" );
+    console.log("Database connection failed" + err.message);
   });

@@ -4,8 +4,8 @@
   "description": "\"SafeKeyz is a digital locker application\"",
   "main": "app.js",
   "scripts": {
-    "start": "node src/app.js",
-    "dev": "nodemon src/app.js"
+    "start": "node backend/src/app.js",
+    "dev": "nodemon backend/src/app.js"
   },
   "author": "Rishi Pandey",
   "license": "ISC",
