@@ -21,7 +21,7 @@ app.use("/", profileRouter);
 
 connectDb()
   .then(() => {
-    app.listen(7000, () => {
+    app.listen(process.env.PORT, () => {
       console.log("hello from server");
     });
   })
