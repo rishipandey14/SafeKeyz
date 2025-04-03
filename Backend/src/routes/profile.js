@@ -2,6 +2,8 @@ const express = require("express");
 const profileRouter = express.Router();
 const { userAuth } = require("../middlewares/auth");
 const {validateEditProfileData} = require("../utils/validation");
+const validator = require("validator");
+const bcrypt =  require("bcrypt");
 
 
 
@@ -33,6 +35,35 @@ profileRouter.patch("/profile/edit", userAuth, async (req, res) => {
 
   } catch (err) {
     res.json({
+      error : err.message
+    });
+  }
+});
+
+// password change API
+profileRouter.patch("/profile/password/change", userAuth, async(req, res) => {
+  try {
+    const loggedInUser = req.user;
+    const {existingPassword, newPassword} = req.body
+
+    //* check if existing password valid
+    const isExistingPasswordValid = await loggedInUser.validatePassword(existingPassword);
+    if (!isExistingPasswordValid) throw new Error("Invalid Existing password");
+
+    //* check if the new password is strong or not
+    if (!validator.isStrongPassword(newPassword)) {
+      return res.status(400).json({ error: "Weak password. Use at least 8 characters with uppercase, lowercase, number, and special character." });
+    }
+
+    //* create new hashPassword and save it in DB
+    loggedInUser.password = await bcrypt.hash(newPassword, 10);
+    await loggedInUser.save();
+
+    res.json({
+      message : "Password changed successfully"
+    });
+  } catch (err) {
+    res.status(400).json({
       error : err.message
     });
   }
