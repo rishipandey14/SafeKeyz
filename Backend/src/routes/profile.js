@@ -4,6 +4,7 @@ const { userAuth } = require("../middlewares/auth");
 const {validateEditProfileData} = require("../utils/validation");
 const validator = require("validator");
 const bcrypt =  require("bcrypt");
+const isProduction = process.env.NODE_ENV === "production";
 
 
 
@@ -59,8 +60,15 @@ profileRouter.patch("/profile/password/change", userAuth, async(req, res) => {
     loggedInUser.password = await bcrypt.hash(newPassword, 10);
     await loggedInUser.save();
 
+    // logout user after password is changed
+    res.clearCookie("token", {
+      httpOnly : true,
+      secure : isProduction,
+      sameSite : "strict",
+    });
+
     res.json({
-      message : "Password changed successfully"
+      message : "Password changed successfully, Login again"
     });
   } catch (err) {
     res.status(400).json({
