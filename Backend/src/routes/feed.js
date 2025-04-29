@@ -11,6 +11,9 @@ feedRouter.post('/feed/add', userAuth, feedController.createFeed);
 // get all feeds of a user
 feedRouter.get("/feed", userAuth, feedController.getAllFeeds);
 
+// update the feed data
+feedRouter.put("/feed/:id", userAuth, feedController.updateFeed);
+
 
 
 

@@ -34,4 +34,27 @@ exports.getAllFeeds = async (req, res) => {
   } catch(err) {
     res.status(400).json({error : err.message});
   }
-}
+};
+
+exports.updateFeed = async (req, res) => {
+  try {
+    const updateObj = { ...req.body };
+
+    if (updateObj.data) {
+      updateObj.data = encrypt(JSON.stringify(updateObj.data));
+    }
+
+    const updatedFeed = await Feed.findOneAndUpdate(
+      { _id: req.params.id, owner: req.user._id },
+      updateObj,
+      { new: true, runValidators: true }
+    );
+
+    if (!updatedFeed) return res.status(404).json({ message: 'Feed not found' });
+
+    res.status(200).json({message : "updated Successfully"});
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+};
+
