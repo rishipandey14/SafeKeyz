@@ -7,12 +7,14 @@ const feedController = require("../controllers/FeedController");
 // create a new feed entry
 feedRouter.post('/feed/add', userAuth, feedController.createFeed);
 
-
 // get all feeds of a user
 feedRouter.get("/feed", userAuth, feedController.getAllFeeds);
 
 // update the feed data
-feedRouter.put("/feed/:id", userAuth, feedController.updateFeed);
+feedRouter.patch("/feed/:id", userAuth, feedController.updateFeed);
+
+// delete the feed data
+feedRouter.delete("/feed/:id", userAuth, feedController.deleteFeed);
 
 
 
