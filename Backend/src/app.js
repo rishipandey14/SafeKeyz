@@ -7,8 +7,6 @@ const cors = require("cors");
 app.use(cors({
   origin: 'http://localhost:5173',
   credentials: true,
-  methods: ['GET', 'POST', 'PATCH','PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type']
 }));
 
 app.use(express.json());
@@ -26,7 +24,7 @@ app.use("/", feedRouter);
 
 connectDb()
   .then(() => {
-    app.listen(process.env.PORT, () => {
+    app.listen(7000, () => {
       console.log("hello from server");
     });
   })
