@@ -25,7 +25,7 @@ app.use("/", feedRouter);
 
 connectDb()
   .then(() => {
-    app.listen(process.env.PORT, () => {
+    app.listen(7000, () => {
       console.log("hello from server");
     });
   })

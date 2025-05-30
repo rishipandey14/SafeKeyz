@@ -53,7 +53,7 @@ exports.updateFeed = async (req, res) => {
       updateObj.data = encrypt(JSON.stringify(updatedData));
     }
 
-    const updatedFeed = await Feed.findByIdAndUpdate(feed._id, updateObj, {
+    await Feed.findByIdAndUpdate(feed._id, updateObj, {
       new : true,
       runValidators : true,
     });
