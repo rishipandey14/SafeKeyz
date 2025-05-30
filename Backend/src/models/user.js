@@ -15,6 +15,7 @@ const userSchema = mongoose.Schema({
   },
   lastName : {
     type : String,
+    required: true,
     lowercase : true,
     trim : true,
     maxLength: 50,
@@ -36,15 +37,18 @@ const userSchema = mongoose.Schema({
     }
   },
   age : {
+    required: true,
     type : Number,
   },
   gender : {
+    required: true,
     type : String,
     validate(value) {
       if(!["male", "female", "others"].includes(value)) throw new Error("Gender is Invalid");
     }
   },
   photoUrl : {
+    required: true,
     type : String,
     default : "https://png.pngtree.com/png-clipart/20231019/original/pngtree-user-profile-avatar-png-image_13369988.png",
     validate(value) {
