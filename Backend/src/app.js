@@ -4,9 +4,10 @@ const connectDb = require("./config/database");
 const cookieParser = require("cookie-parser");
 const cors = require("cors");
 
+
 app.use(cors({
-  origin: 'http://localhost:5173',
-  credentials: true,
+  origin: "http://localhost:5173", // your frontend's origin
+  credentials: true
 }));
 
 app.use(express.json());
