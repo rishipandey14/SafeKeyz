@@ -23,7 +23,6 @@ profileRouter.get("/profile/view", userAuth, async (req, res) => {
 // edit profile API
 profileRouter.put("/profile/edit", userAuth, async (req, res) => {
   try {
-    console.log("User in PATCH:", req.user); // <-- check this
     if(!validateEditProfileData(req)) throw new Error("Invalid edit request");
 
     const loggedInUser = req.user;
