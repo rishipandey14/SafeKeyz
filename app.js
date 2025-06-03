@@ -7,7 +7,8 @@ const cors = require("cors");
 
 app.use(cors({
   origin: "https://safe-keyz-frontend.vercel.app",
-  credentials: true
+  credentials: true,
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
 }));
 
 app.use(express.json());
