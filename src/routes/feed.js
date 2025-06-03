@@ -11,7 +11,7 @@ feedRouter.post('/feed/add', userAuth, feedController.createFeed);
 feedRouter.get("/feed", userAuth, feedController.getAllFeeds);
 
 // update the feed data
-feedRouter.patch("/feed/:id", userAuth, feedController.updateFeed);
+feedRouter.put("/feed/:id", userAuth, feedController.updateFeed);
 
 // delete the feed data
 feedRouter.delete("/feed/:id", userAuth, feedController.deleteFeed);
