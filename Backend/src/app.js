@@ -6,7 +6,7 @@ const cors = require("cors");
 
 
 app.use(cors({
-  origin: "https://safe-keyz-frontend.vercel.app", // your frontend's origin
+  origin: "https://safe-keyz-frontend.vercel.app",
   credentials: true
 }));
 
@@ -18,9 +18,9 @@ const authRouter = require("./routes/auth");
 const profileRouter = require("./routes/profile");
 const feedRouter = require("./routes/feed");
 
-app.use("/", authRouter);
-app.use("/", profileRouter);
-app.use("/", feedRouter);
+app.use("/api", authRouter);
+app.use("/api", profileRouter);
+app.use("/api", feedRouter);
 
 
 connectDb()
