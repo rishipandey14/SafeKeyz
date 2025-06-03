@@ -26,7 +26,7 @@ authRouter.post("/signup", async (req, res) => {
     // add the token in cookie and send response back to the user
     res.cookie("token", token, {
       httpOnly: true,        // prevents JS from accessing cookie (mitigates XSS)
-      secure: true,          // only send cookie over HTTPS (important in production)
+      secure: isProduction,          // only send cookie over HTTPS (important in production)
       sameSite: "None",    // controls cross-site behavior (CSRF protection)
       expires: new Date(Date.now() + 8 * 3600000) // 8 hours
     });
