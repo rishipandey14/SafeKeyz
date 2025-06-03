@@ -1,7 +1,7 @@
 const express = require("express");
 const feedRouter = express.Router();
 const {userAuth} = require("../middlewares/auth");
-const feedController = require("../controllers/FeedController");
+const feedController = require("../controllers/feedController");
 
 
 // create a new feed entry
