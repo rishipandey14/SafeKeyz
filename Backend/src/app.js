@@ -6,7 +6,7 @@ const cors = require("cors");
 
 
 app.use(cors({
-  origin: "http://localhost:5173", // your frontend's origin
+  origin: "https://safe-keyz-frontend.vercel.app", // your frontend's origin
   credentials: true
 }));
 
