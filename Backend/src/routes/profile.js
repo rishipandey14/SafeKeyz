@@ -43,7 +43,7 @@ profileRouter.put("/profile/edit", userAuth, async (req, res) => {
 });
 
 // password change API
-profileRouter.patch("/profile/password/change", userAuth, async(req, res) => {
+profileRouter.put("/profile/password/change", userAuth, async(req, res) => {
   try {
     const loggedInUser = req.user;
     const {existingPassword, newPassword} = req.body
@@ -69,7 +69,8 @@ profileRouter.patch("/profile/password/change", userAuth, async(req, res) => {
     });
 
     res.json({
-      message : "Password changed successfully, Login again"
+      message : "Password changed successfully, Login again",
+      data: loggedInUser
     });
   } catch (err) {
     res.status(400).json({
