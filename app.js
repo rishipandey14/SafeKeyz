@@ -1,6 +1,6 @@
 const express = require("express");
 const app = express();
-const connectDb = require("./config/database");
+const connectDb = require("./src/config/database");
 const cookieParser = require("cookie-parser");
 const cors = require("cors");
 
@@ -14,9 +14,9 @@ app.use(express.json());
 app.use(cookieParser());
 
 
-const authRouter = require("./routes/auth");
-const profileRouter = require("./routes/profile");
-const feedRouter = require("./routes/feed");
+const authRouter = require("./src/routes/auth");
+const profileRouter = require("./src/routes/profile");
+const feedRouter = require("./src/routes/feed");
 
 app.use("/api", authRouter);
 app.use("/api", profileRouter);
