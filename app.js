@@ -1,15 +1,26 @@
+require("dotenv").config();
 const express = require("express");
 const app = express();
 const connectDb = require("./src/config/database");
 const cookieParser = require("cookie-parser");
 const cors = require("cors");
 
+const isProduction = process.env.NODE_ENV === "production";
+if (isProduction) {
+  // behind Vercel/Reverse proxies
+  app.set("trust proxy", 1);
+}
+const allowedOrigin = isProduction
+  ? process.env.FRONTEND_URL || "https://safe-keyz-frontend.vercel.app"
+  : process.env.FRONTEND_URL_LOCAL || "http://localhost:5173";
 
-app.use(cors({
-  origin: "https://safe-keyz-frontend.vercel.app",
-  credentials: true,
-  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-}));
+app.use(
+  cors({
+    origin: allowedOrigin,
+    credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  })
+);
 
 app.use(express.json());
 app.use(cookieParser());
@@ -26,8 +37,9 @@ app.use("/api", feedRouter);
 
 connectDb()
   .then(() => {
-    app.listen(7000, () => {
-      console.log("hello from server");
+    const PORT = process.env.PORT || 7000;
+    app.listen(PORT, () => {
+      console.log(`Server listening on port ${PORT}`);
     });
   })
   .catch((err) => {

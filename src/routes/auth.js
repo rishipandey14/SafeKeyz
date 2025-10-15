@@ -26,9 +26,10 @@ authRouter.post("/signup", async (req, res) => {
     // add the token in cookie and send response back to the user
     res.cookie("token", token, {
       httpOnly: true,        // prevents JS from accessing cookie (mitigates XSS)
-      secure: isProduction,          // only send cookie over HTTPS (important in production)
-      sameSite: "None",    // controls cross-site behavior (CSRF protection)
-      expires: new Date(Date.now() + 8 * 3600000) // 8 hours
+      secure: isProduction,  // only send cookie over HTTPS (important in production)
+      sameSite: isProduction ? "None" : "Lax", // cross-site in prod; simpler in dev
+      expires: new Date(Date.now() + 8 * 3600000), // 8 hours
+      path: "/",
     });
 
     await user.save();
@@ -60,10 +61,11 @@ authRouter.post("/login", async (req, res) => {
 
       // add the token in cookie and send response back to the user
       res.cookie("token", token, {
-        httpOnly: true,        // prevents JS from accessing cookie (mitigates XSS)
-        secure: isProduction,          // only send cookie over HTTPS (important in production)
-        sameSite: "Strict",    // controls cross-site behavior (CSRF protection)
-        expires: new Date(Date.now() + 8 * 3600000) // 8 hours
+        httpOnly: true,
+        secure: isProduction,
+        sameSite: isProduction ? "None" : "Lax",
+        expires: new Date(Date.now() + 8 * 3600000),
+        path: "/",
       });
       res.json({
         message: "Login successfully",
@@ -82,7 +84,8 @@ authRouter.post("/logout", async (req, res) => {
   res.clearCookie("token", {
     httpOnly: true,
     secure: isProduction,
-    sameSite: "strict",
+    sameSite: isProduction ? "None" : "Lax",
+    path: "/",
   });
 
   res.json({ message: "Logout Successfully" });

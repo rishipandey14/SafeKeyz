@@ -63,9 +63,10 @@ profileRouter.put("/profile/password/change", userAuth, async(req, res) => {
 
     // logout user after password is changed
     res.clearCookie("token", {
-      httpOnly : true,
-      secure : isProduction,
-      sameSite : "strict",
+      httpOnly: true,
+      secure: isProduction,
+      sameSite: isProduction ? "None" : "Lax",
+      path: "/",
     });
 
     res.json({
