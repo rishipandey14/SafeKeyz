@@ -1,85 +1,11 @@
-const express = require("express");
+import express from "express";
+import { userAuth } from "../middlewares/auth.js";
+import { profileView, profileEdit, changePassword } from "../controllers/profileController.js";
+
 const profileRouter = express.Router();
-const { userAuth } = require("../middlewares/auth");
-const {validateEditProfileData} = require("../utils/validation");
-const validator = require("validator");
-const bcrypt =  require("bcrypt");
-const isProduction = process.env.NODE_ENV === "production";
 
+profileRouter.get("/profile/view", userAuth, profileView);
+profileRouter.get("/profile/edit", userAuth, profileEdit);
+profileRouter.get("/profile/password/change", userAuth, changePassword);
 
-
-// view Profile API
-profileRouter.get("/profile/view", userAuth, async (req, res) => {
-  try {
-    const user = req.user;
-    res.send(user);
-  } catch (err) {
-    res.status(400).json({
-      error: err.message
-    });
-  }
-});
-
-// edit profile API
-profileRouter.put("/profile/edit", userAuth, async (req, res) => {
-  try {
-    if(!validateEditProfileData(req)) throw new Error("Invalid edit request");
-
-    const loggedInUser = req.user;
-    Object.keys(req.body).forEach(key => (loggedInUser[key] = req.body[key]));
-
-    await loggedInUser.save();
-
-    res.json({
-      message : `${loggedInUser.firstName} , your profile updated successfully`,
-      data: loggedInUser,
-    })
-
-  } catch (err) {
-    res.json({
-      error : err.message
-    });
-  }
-});
-
-// password change API
-profileRouter.put("/profile/password/change", userAuth, async(req, res) => {
-  try {
-    const loggedInUser = req.user;
-    const {existingPassword, newPassword} = req.body
-
-    //* check if existing password valid
-    const isExistingPasswordValid = await loggedInUser.validatePassword(existingPassword);
-    if (!isExistingPasswordValid) throw new Error("Invalid Existing password");
-
-    //* check if the new password is strong or not
-    if (!validator.isStrongPassword(newPassword)) {
-      return res.status(400).json({ error: "Weak password. Use at least 8 characters with uppercase, lowercase, number, and special character." });
-    }
-
-    //* create new hashPassword and save it in DB
-    loggedInUser.password = await bcrypt.hash(newPassword, 10);
-    await loggedInUser.save();
-
-    // logout user after password is changed
-    res.clearCookie("token", {
-      httpOnly: true,
-      secure: isProduction,
-      sameSite: isProduction ? "None" : "Lax",
-      path: "/",
-    });
-
-    res.json({
-      message : "Password changed successfully, Login again",
-      data: loggedInUser
-    });
-  } catch (err) {
-    res.status(400).json({
-      error : err.message
-    });
-  }
-});
-
-
-
-module.exports = profileRouter;
+export default profileRouter;
