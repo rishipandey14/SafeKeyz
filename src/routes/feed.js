@@ -1,23 +1,13 @@
-const express = require("express");
+import express from "express";
+import { userAuth } from "../middlewares/auth.js";
+import { createFeed, getAllFeeds, updateFeed, deleteFeed } from "../controllers/feedController.js";
 const feedRouter = express.Router();
-const {userAuth} = require("../middlewares/auth");
-const feedController = require("../controllers/feedController");
 
 
-// create a new feed entry
-feedRouter.post('/feed/add', userAuth, feedController.createFeed);
-
-// get all feeds of a user
-feedRouter.get("/feed", userAuth, feedController.getAllFeeds);
-
-// update the feed data
-feedRouter.put("/feed/:id", userAuth, feedController.updateFeed);
-
-// delete the feed data
-feedRouter.delete("/feed/:id", userAuth, feedController.deleteFeed);
+feedRouter.post('/feed/add', userAuth, createFeed);
+feedRouter.get("/feed", userAuth, getAllFeeds);
+feedRouter.put("/feed/:id", userAuth, updateFeed);
+feedRouter.delete("/feed/:id", userAuth, deleteFeed);
 
 
-
-
-
-module.exports = feedRouter;
+export default feedRouter;

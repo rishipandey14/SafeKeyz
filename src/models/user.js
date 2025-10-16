@@ -1,8 +1,7 @@
-require("dotenv").config();
-const mongoose = require("mongoose");
-const validator = require("validator");
-const bcrypt = require("bcrypt");
-const jwt = require("jsonwebtoken");
+import "dotenv/config";
+import mongoose from "mongoose";
+import validator from "validator";
+import bcrypt from "bcrypt";
 
 
 const userSchema = mongoose.Schema({
@@ -67,4 +66,5 @@ userSchema.methods.validatePassword = async function (passwordInputByUser) {
 };
 
 
-module.exports = mongoose.model("User", userSchema);
+const User = mongoose.model("User", userSchema);
+export default User;

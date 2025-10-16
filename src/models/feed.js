@@ -1,5 +1,5 @@
-require("dotenv").config();
-const mongoose = require("mongoose");
+import "dotenv/config";
+import mongoose from "mongoose";
 
 
 const feedSchema = mongoose.Schema({
@@ -35,4 +35,5 @@ const feedSchema = mongoose.Schema({
 }, { timestamps: true });
 
 
-module.exports = mongoose.model("Feed", feedSchema);
+const Feed = mongoose.model("Feed", feedSchema);
+export default Feed;

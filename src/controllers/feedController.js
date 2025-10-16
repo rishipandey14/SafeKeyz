@@ -1,9 +1,8 @@
-const { json } = require("express");
-const Feed = require("../models/feed");
-const { encrypt, decrypt } = require("../utils/crypto");
+import Feed from "../models/feed.js";
+import { encrypt, decrypt } from "../utils/crypto.js";
 
 
-exports.createFeed = async (req, res) => {
+export const createFeed = async (req, res) => {
   try {
     const {title, category, data} = req.body;
     const newFeed = new Feed({
@@ -21,7 +20,7 @@ exports.createFeed = async (req, res) => {
   }
 };
 
-exports.getAllFeeds = async (req, res) => {
+export const getAllFeeds = async (req, res) => {
   try {
     const feeds = await Feed.find({owner : req.user._id});
 
@@ -36,7 +35,7 @@ exports.getAllFeeds = async (req, res) => {
   }
 };
 
-exports.updateFeed = async (req, res) => {
+export const updateFeed = async (req, res) => {
   try {
     const feed = await Feed.findOne({_id : req.params.id, owner : req.user._id});
     if (!feed) return res.status(404).json({ message: 'Feed not found' });
@@ -64,7 +63,7 @@ exports.updateFeed = async (req, res) => {
   }
 };
 
-exports.deleteFeed = async (req, res) => {
+export const deleteFeed = async (req, res) => {
   try {
     const result = await Feed.deleteOne({
       _id : req.params.id,

@@ -1,10 +1,10 @@
-const bcrypt = require("bcrypt");
-const User = require("../models/user");
-const {validateSignUpData} = require("../utils/validation");
+import bcrypt from "bcrypt";
+import User from "../models/user.js";
+import { validateSignUpData } from "../utils/validation.js";
+import { createToken } from "../utils/customJWTToken.js";
 const isProduction = process.env.NODE_ENV === "production";
-const {createToken} = require("../utils/customJWTToken");
 
-exports.signup = async (req, res) => {
+export const signup = async (req, res) => {
     try {
         // validation of data
         validateSignUpData(req);
@@ -45,7 +45,7 @@ exports.signup = async (req, res) => {
     }
 }
 
-exports.login = async (req, res) => {
+export const login = async (req, res) => {
     try {
         const { emailId, password } = req.body;
     
@@ -78,7 +78,7 @@ exports.login = async (req, res) => {
     }
 }
 
-exports.logout = async (req, res) => {
+export const logout = async (req, res) => {
     res.clearCookie("token", {
         httpOnly: true,
         secure: isProduction,

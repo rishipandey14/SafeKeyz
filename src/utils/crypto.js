@@ -1,5 +1,5 @@
-require("dotenv").config();
-const crypto = require("crypto");
+import "dotenv/config";
+import crypto from "crypto";
 
 const algorithm = "aes-256-cbc";
 const key = crypto
@@ -8,7 +8,7 @@ const key = crypto
   .digest()
 const ivLength = 16;
 
-exports.encrypt = (text) => {
+export const encrypt = (text) => {
   const iv = crypto.randomBytes(ivLength);
   const cipher = crypto.createCipheriv(algorithm, key, iv);
   let encrypted = cipher.update(text, "utf8", "hex");
@@ -16,7 +16,7 @@ exports.encrypt = (text) => {
   return iv.toString("hex") + ":" + encrypted;
 };
 
-exports.decrypt = (encryptedText) => {
+export const decrypt = (encryptedText) => {
   const [ivHex, encrypted] = encryptedText.split(":");
   const iv = Buffer.from(ivHex, "hex");
   const decipher = crypto.createDecipheriv(algorithm, key, iv);

@@ -1,10 +1,8 @@
-require("dotenv").config();
-const jwt = require("jsonwebtoken");
-const User = require("../models/user");
-const {validateToken} =  require("../utils/customJWTToken");
+import "dotenv/config";
+import User from "../models/user.js";
+import { validateToken } from "../utils/customJWTToken.js";
 
-
-const userAuth = async (req, res, next) => {
+export const userAuth = async (req, res, next) => {
   try {
     // read the token from the request cookies
     const {token} = req.cookies;
@@ -27,9 +25,4 @@ const userAuth = async (req, res, next) => {
       error : err.message,
     });
   }
-}
-
-
-module.exports = {
-  userAuth
 };

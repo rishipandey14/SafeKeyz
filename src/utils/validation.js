@@ -1,7 +1,7 @@
-const validator = require("validator");
+import validator from "validator";
 
-const validateSignUpData =  (req) => {
-  const {firstName, emailId, password} = req.body;
+export const validateSignUpData = (req) => {
+  const { firstName, emailId, password } = req.body;
 
   if (!firstName ) {
     throw new Error("Invalid name")
@@ -10,23 +10,19 @@ const validateSignUpData =  (req) => {
   } else if (!validator.isStrongPassword(password)) {
     throw new Error("Weak Password")
   }
-
 };
 
-const validateEditProfileData = (req) => {
+export const validateEditProfileData = (req) => {
   const allowedToEditFields = [
     "firstName",
     "lastName",
     "age",
     "gender",
-    "photoUrl"
-  ]
+    "photoUrl",
+  ];
 
-  const isEditAllowed = Object.keys(req.body).every(key => allowedToEditFields.includes(key));
+  const isEditAllowed = Object.keys(req.body).every((key) =>
+    allowedToEditFields.includes(key)
+  );
   return isEditAllowed;
-};
-
-module.exports = {
-  validateSignUpData,
-  validateEditProfileData,
 };

@@ -1,6 +1,7 @@
 {
   "name": "safekeyz",
   "version": "1.0.0",
+  "type": "module",
   "description": "\"SafeKeyz is a digital locker application\"",
   "main": "app.js",
   "scripts": {

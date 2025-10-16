@@ -1,9 +1,11 @@
-require("dotenv").config();
-const express = require("express");
+
+import dotenv from "dotenv";
+dotenv.config();
+import express from "express";
 const app = express();
-const connectDb = require("./src/config/database");
-const cookieParser = require("cookie-parser");
-const cors = require("cors");
+import connectDb from "./src/config/database.js";
+import cookieParser from "cookie-parser";
+import cors from "cors";
 
 const isProduction = process.env.NODE_ENV === "production";
 if (isProduction) {
@@ -25,15 +27,13 @@ app.use(
 app.use(express.json());
 app.use(cookieParser());
 
-
-const authRouter = require("./src/routes/auth");
-const profileRouter = require("./src/routes/profile");
-const feedRouter = require("./src/routes/feed");
+import authRouter from "./src/routes/auth.js";
+import profileRouter from "./src/routes/profile.js";
+import feedRouter from "./src/routes/feed.js";
 
 app.use("/api", authRouter);
 app.use("/api", profileRouter);
 app.use("/api", feedRouter);
-
 
 connectDb()
   .then(() => {

@@ -1,5 +1,5 @@
-require("dotenv").config()
-const jwt = require("jsonwebtoken")
+import "dotenv/config";
+import jwt from "jsonwebtoken";
 
 const JWT_SECRET_KEY = process.env.JWT_SECRET_KEY
 
@@ -9,7 +9,6 @@ const JWT_SECRET_KEY = process.env.JWT_SECRET_KEY
  */
 
 export const createToken = (user) => {
-    const user = this
 
     const payload = {
         _id : user._id,
