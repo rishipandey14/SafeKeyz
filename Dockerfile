@@ -5,8 +5,11 @@ WORKDIR /app
 COPY package*.json ./
 RUN npm install -g nodemon && npm install
 
+# Only copy source after dependencies to optimize cache
 COPY . .
 
 EXPOSE 7000
 
-CMD ["npm", "run", "dev"]
+ENV NODE_ENV=development
+
+CMD ["nodemon", "app.js"]
