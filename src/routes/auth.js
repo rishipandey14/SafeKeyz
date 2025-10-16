@@ -1,96 +1,104 @@
 const express = require("express");
 const authRouter = express.Router();
-const bcrypt = require("bcrypt");
-const User = require("../models/user");
-const { validateSignUpData } = require("../utils/validation");
-const isProduction = process.env.NODE_ENV === "production";
+// const bcrypt = require("bcrypt");
+// const User = require("../models/user");
+// const { validateSignUpData } = require("../utils/validation");
+// const isProduction = process.env.NODE_ENV === "production";
+// const {createToken} = require("../utils/customJWTToken")
+const authController = require("../controllers/authController")
 
 // signup API
-authRouter.post("/signup", async (req, res) => {
-  try {
-    // validation of data
-    validateSignUpData(req);
+// authRouter.post("/signup", async (req, res) => {
+//   try {
+//     // validation of data
+//     validateSignUpData(req);
 
-    const { password, ...rest } = req.body;
+//     const { password, ...rest } = req.body;
 
-    // password encryption
-    const hashedPassword = await bcrypt.hash(password, 10);
+//     // password encryption
+//     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // create new instance/user of the User model
-    const user = new User({
-      ...rest,
-      password: hashedPassword,
-    });
-    const token = await user.getJWT();  // create JWT token
+//     // create new instance/user of the User model
+//     const user = new User({
+//       ...rest,
+//       password: hashedPassword,
+//     });
+//     const token = createToken(user);  // create JWT token
 
-    // add the token in cookie and send response back to the user
-    res.cookie("token", token, {
-      httpOnly: true,        // prevents JS from accessing cookie (mitigates XSS)
-      secure: isProduction,  // only send cookie over HTTPS (important in production)
-      sameSite: isProduction ? "None" : "Lax", // cross-site in prod; simpler in dev
-      expires: new Date(Date.now() + 8 * 3600000), // 8 hours
-      path: "/",
-    });
+//     // add the token in cookie and send response back to the user
+//     res.cookie("token", token, {
+//       httpOnly: true,        // prevents JS from accessing cookie (mitigates XSS)
+//       secure: isProduction,  // only send cookie over HTTPS (important in production)
+//       sameSite: isProduction ? "None" : "Lax", // cross-site in prod; simpler in dev
+//       expires: new Date(Date.now() + 8 * 3600000), // 8 hours
+//       path: "/",
+//     });
 
-    await user.save();
-    res.status(201).json({
-      message: "User added up successfully",
-      data: user,
-    });
+//     await user.save();
+//     res.status(201).json({
+//       message: "User added up successfully",
+//       data: user,
+//       token: token, // JWT token for testing/debugging
+//     });
 
-  } catch (err) {
-    res.status(400).json({
-      message: "Couldn't sign up the user",
-      error: err.message,
-    })
-  }
-});
+//   } catch (err) {
+//     res.status(400).json({
+//       message: "Couldn't sign up the user",
+//       error: err.message,
+//     })
+//   }
+// });
 
-// login API
-authRouter.post("/login", async (req, res) => {
-  try {
-    const { emailId, password } = req.body;
+// // login API
+// authRouter.post("/login", async (req, res) => {
+//   try {
+//     const { emailId, password } = req.body;
 
-    const user = await User.findOne({ emailId: emailId });   // validate emailId
-    if (!user) throw new Error("Invalid credentials");
+//     const user = await User.findOne({ emailId: emailId });   // validate emailId
+//     if (!user) throw new Error("Invalid credentials");
 
-    const isPasswordValid = await user.validatePassword(password);  // validate password
+//     const isPasswordValid = await user.validatePassword(password);  // validate password
 
-    if (isPasswordValid) {
-      const token = await user.getJWT();  // create JWT token
+//     if (isPasswordValid) {
+//       const token = createToken(user);  // create JWT token
 
-      // add the token in cookie and send response back to the user
-      res.cookie("token", token, {
-        httpOnly: true,
-        secure: isProduction,
-        sameSite: isProduction ? "None" : "Lax",
-        expires: new Date(Date.now() + 8 * 3600000),
-        path: "/",
-      });
-      res.json({
-        message: "Login successfully",
-        data: user,
-      });
-    }
-  } catch (err) {
-    res.status(400).json({
-      error: err.message,
-    });
-  }
-});
+//       // add the token in cookie and send response back to the user
+//       res.cookie("token", token, {
+//         httpOnly: true,
+//         secure: isProduction,
+//         sameSite: isProduction ? "None" : "Lax",
+//         expires: new Date(Date.now() + 8 * 3600000),
+//         path: "/",
+//       });
+//       res.json({
+//         message: "Login successfully",
+//         data: user,
+//         token: token, // JWT token for testing/debugging
+//       });
+//     }
+//   } catch (err) {
+//     res.status(400).json({
+//       error: err.message,
+//     });
+//   }
+// });
 
-// Logout API
-authRouter.post("/logout", async (req, res) => {
-  res.clearCookie("token", {
-    httpOnly: true,
-    secure: isProduction,
-    sameSite: isProduction ? "None" : "Lax",
-    path: "/",
-  });
+// // Logout API
+// authRouter.post("/logout", async (req, res) => {
+//   res.clearCookie("token", {
+//     httpOnly: true,
+//     secure: isProduction,
+//     sameSite: isProduction ? "None" : "Lax",
+//     path: "/",
+//   });
 
-  res.json({ message: "Logout Successfully" });
-});
+//   res.json({ message: "Logout Successfully" });
+// });
 
+// signup user
+authRouter.post('/signup', authController.signup);
+authRouter.post('/login', authController.login);
+authRouter.post('/logout', authController.logout);
 
 
 
