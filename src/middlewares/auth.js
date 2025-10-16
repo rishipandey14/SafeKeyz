@@ -1,16 +1,17 @@
 require("dotenv").config();
 const jwt = require("jsonwebtoken");
 const User = require("../models/user");
+const {validateToken} =  require("../utils/customJWTToken");
 
 
 const userAuth = async (req, res, next) => {
   try {
     // read the token from the request cookies
     const {token} = req.cookies;
-    if(!token) throw new Error("Invalid token");
+    if(!token) return res.status(401).json({error : "No token provided"});
 
     // validate the token
-    const decodedMessage = jwt.verify(token, process.env.JWT_SECRET_KEY);
+    const decodedMessage = validateToken(token);
 
     // find the user
     const {_id} = decodedMessage;

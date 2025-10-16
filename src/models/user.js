@@ -56,12 +56,6 @@ const userSchema = mongoose.Schema({
   },
 }, {timestamps : true});
 
-userSchema.methods.getJWT = async function () {
-  const user = this;
-
-  const token = jwt.sign({_id : user._id}, process.env.JWT_SECRET_KEY, { expiresIn : "7D",});
-  return token;
-};
 
 // method/function to check password validation 
 userSchema.methods.validatePassword = async function (passwordInputByUser) {
