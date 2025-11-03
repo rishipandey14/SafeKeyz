@@ -5,7 +5,7 @@ import { profileView, profileEdit, changePassword } from "../controllers/profile
 const profileRouter = express.Router();
 
 profileRouter.get("/profile/view", userAuth, profileView);
-profileRouter.get("/profile/edit", userAuth, profileEdit);
-profileRouter.get("/profile/password/change", userAuth, changePassword);
+profileRouter.patch("/profile/edit", userAuth, profileEdit);
+profileRouter.patch("/profile/password/change", userAuth, changePassword);
 
 export default profileRouter;

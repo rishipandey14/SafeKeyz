@@ -2,7 +2,6 @@ import bcrypt from "bcrypt";
 import User from "../models/user.js";
 import { validateSignUpData } from "../utils/validation.js";
 import { createToken } from "../utils/customJWTToken.js";
-const isProduction = process.env.NODE_ENV === "production";
 
 export const signup = async (req, res) => {
     try {
@@ -23,9 +22,9 @@ export const signup = async (req, res) => {
     
         // add the token in cookie and send response back to the user
         res.cookie("token", token, {
-            httpOnly: true,        // prevents JS from accessing cookie (mitigates XSS)
-            secure: isProduction,  // only send cookie over HTTPS (important in production)
-            sameSite: isProduction ? "None" : "Lax", // cross-site in prod; simpler in dev
+            httpOnly: true,
+            secure: false,
+            sameSite: "Lax",
             expires: new Date(Date.now() + 8 * 3600000), // 8 hours
             path: "/",
         });
@@ -60,8 +59,8 @@ export const login = async (req, res) => {
             // add the token in cookie and send response back to the user
             res.cookie("token", token, {
                 httpOnly: true,
-                secure: isProduction,
-                sameSite: isProduction ? "None" : "Lax",
+                secure: false,
+                sameSite: "Lax",
                 expires: new Date(Date.now() + 8 * 3600000),
                 path: "/",
             });
@@ -81,8 +80,8 @@ export const login = async (req, res) => {
 export const logout = async (req, res) => {
     res.clearCookie("token", {
         httpOnly: true,
-        secure: isProduction,
-        sameSite: isProduction ? "None" : "Lax",
+        secure: false,
+        sameSite: "Lax",
         path: "/",
     });
 

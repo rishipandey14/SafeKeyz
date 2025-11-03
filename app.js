@@ -7,20 +7,14 @@ import connectDb from "./src/config/database.js";
 import cookieParser from "cookie-parser";
 import cors from "cors";
 
-const isProduction = process.env.NODE_ENV === "production";
-if (isProduction) {
-  // behind Vercel/Reverse proxies
-  app.set("trust proxy", 1);
-}
-const allowedOrigin = isProduction
-  ? process.env.FRONTEND_URL || "https://safe-keyz-frontend.vercel.app"
-  : process.env.FRONTEND_URL_LOCAL || "http://localhost:5173";
+// Development-only: always use local frontend URL by default
+const allowedOrigin = process.env.FRONTEND_URL_LOCAL || "http://localhost:5173";
 
 app.use(
   cors({
     origin: allowedOrigin,
     credentials: true,
-    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
   })
 );
 

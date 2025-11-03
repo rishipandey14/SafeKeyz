@@ -1,7 +1,6 @@
 import { validateEditProfileData } from "../utils/validation.js";
 import validator from "validator";
 import bcrypt from "bcrypt";
-const isProduction = process.env.NODE_ENV === "production";
 
 export const profileView = async (req, res) => {
     try {
@@ -56,8 +55,8 @@ export const changePassword = async (req, res) => {
         // logout user after password is changed
         res.clearCookie("token", {
             httpOnly: true,
-            secure: isProduction,
-            sameSite: isProduction ? "None" : "Lax",
+            secure: false,
+            sameSite: "Lax",
             path: "/",
         });
     
