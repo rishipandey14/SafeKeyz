@@ -19,6 +19,7 @@
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.13.0",
     "multer": "^2.0.0",
+    "useragent": "^2.3.0",
     "validator": "^13.15.0"
   }
 }
