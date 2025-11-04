@@ -18,7 +18,8 @@ app.use(
   })
 );
 
-app.use(express.json());
+// Increase JSON body size limit to allow small base64 image uploads in dev (adjust as needed)
+app.use(express.json({ limit: "1mb" }));
 app.use(cookieParser());
 
 import authRouter from "./src/routes/auth.js";

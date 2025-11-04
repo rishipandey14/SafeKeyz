@@ -8,14 +8,14 @@ const userSchema = mongoose.Schema({
   firstName : {
     type : String,
     required : true,
-    lowercase : true,
+    // lowercase : true,
     trim : true,
     maxLength: 50,
   },
   lastName : {
     type : String,
     required: true,
-    lowercase : true,
+    // lowercase : true,
     trim : true,
     maxLength: 50,
   },
@@ -51,7 +51,25 @@ const userSchema = mongoose.Schema({
     type : String,
     default : "https://png.pngtree.com/png-clipart/20231019/original/pngtree-user-profile-avatar-png-image_13369988.png",
     validate(value) {
-      if(!validator.isURL(value)) throw new Error("Invalid Url!!");
+      // Accept regular http(s) URLs
+      if (validator.isURL(value)) return true;
+
+      // Accept data URLs for small base64-encoded images (dev use)
+      // Format: data:image/{png|jpeg|jpg};base64,AAAA...
+      if (typeof value === "string" && value.startsWith("data:image/")) {
+        // basic pattern check
+        const matches = value.match(/^data:image\/(png|jpeg|jpg);base64,([A-Za-z0-9+/=]+)$/);
+        if (!matches) throw new Error("Invalid data URL for image");
+
+        // optional: limit size of base64 payload (protects DB and request size)
+        const base64Payload = matches[2] || "";
+        const maxBase64Length = 300 * 1024; // ~300KB of base64 chars (~225KB binary)
+        if (base64Payload.length > maxBase64Length) throw new Error("Image too large");
+
+        return true;
+      }
+
+      throw new Error("Invalid Url!!");
     }
   },
 }, {timestamps : true});
