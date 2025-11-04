@@ -15,17 +15,29 @@ export const profileView = async (req, res) => {
 
 export const profileEdit = async (req, res) => {
     try {
-        if(!validateEditProfileData(req)) throw new Error("Invalid edit request");
+        // Step 1: Validate allowed fields
+        console.log(req.body);
+        const isValidEdit = validateEditProfileData(req);
+        if (!isValidEdit) {
+        return res.status(400).json({ error: "Invalid edit request" });
+        }
 
+        // Step 2: Get logged-in user
         const loggedInUser = req.user;
-        Object.keys(req.body).forEach(key => (loggedInUser[key] = req.body[key]));
 
+        // Step 3: Update allowed fields
+        Object.keys(req.body).forEach((key) => {
+            loggedInUser[key] = req.body[key];
+        });
+
+        // Step 4: Save updated user
         await loggedInUser.save();
 
-        res.json({
-            message : `${loggedInUser.firstName} , your profile updated successfully`,
+        // Step 5: Send success response
+        return res.status(200).json({
+            message: `${loggedInUser.firstName}, your profile has been updated successfully.`,
             data: loggedInUser,
-        })
+        });
 
     } catch (err) {
         res.json({
