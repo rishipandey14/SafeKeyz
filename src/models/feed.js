@@ -32,7 +32,36 @@ const feedSchema = mongoose.Schema({
     required: true,
     ref: "User",
   },
+  sharedWith: [
+    {
+      user: {type: mongoose.Schema.Types.ObjectId, ref: "User", required: true},
+      accessLevel: {type: String, enum: ["view", "edit"], default: "view"},
+      sharedAt: {type: Date, default: Date.now},
+    },
+  ],
+  size: {type: Number, default: 0},  // Size in Bytes
 }, { timestamps: true });
+
+
+
+
+feedSchema.pre("save", function(next) {
+  // Calculate the size of the entire document as it will be stored in MongoDB
+  // This includes all fields: title, category, data, owner, sharedWith, timestamps, etc.
+  const documentObject = {
+    title: this.title,
+    category: this.category,
+    data: this.data,
+    owner: this.owner,
+    sharedWith: this.sharedWith,
+    createdAt: this.createdAt,
+    updatedAt: this.updatedAt,
+  };
+  
+  const documentString = JSON.stringify(documentObject);
+  this.size = Buffer.byteLength(documentString, "utf-8");
+  next();
+});
 
 
 const Feed = mongoose.model("Feed", feedSchema);
