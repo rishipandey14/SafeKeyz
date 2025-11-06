@@ -44,7 +44,7 @@ const userSchema = mongoose.Schema({
     // required: true,
     type : String,
     validate(value) {
-      if(!["Male", "Female", "Others"].includes(value)) throw new Error("Gender is Invalid");
+      if(value && !["Male", "Female", "Others"].includes(value)) throw new Error("Gender is Invalid");
     }
   },
   photoUrl : {
