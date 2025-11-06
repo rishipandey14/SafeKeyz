@@ -41,14 +41,44 @@ export const createFeed = async (req, res) => {
 
 export const getAllFeeds = async (req, res) => {
   try {
-    const feeds = await Feed.find({owner : req.user._id});
+    const userId = req.user._id;
+    const userEmail = req.user.emailId;
 
-    const decryptedFeeds = feeds.map(feed => ({
+    // Fetch user's own feeds
+    const ownedFeeds = await Feed.find({owner : userId});
+
+    const decryptedOwnedFeeds = ownedFeeds.map(feed => ({
       ...feed.toObject(),
       data : JSON.parse(decrypt(feed.data)),
+      isOwner: true,
     }));
 
-    res.status(200).json({feeds : decryptedFeeds});
+    // Fetch feeds shared with this user
+    const sharedFeeds = await Feed.find({
+      "sharedWith.emailId" : userEmail,
+    }).populate("owner", "firstName lastName emailId");
+
+    // console.log("SharedFeeds -> ", sharedFeeds);
+
+    const decryptedSharedFeeds = sharedFeeds.map(feed => {
+      const shareInfo = feed.sharedWith.find(
+        share => share.emailId?.toLowerCase() === userEmail?.toLowerCase()
+      );
+      const { sharedWith, ...feedWithoutSharedWith } = feed.toObject();
+      return {
+        ...feedWithoutSharedWith,
+        data: JSON.parse(decrypt(feed.data)),
+        permission: shareInfo?.permission || "read",
+        sharedAt: shareInfo?.sharedAt,
+      };
+    });
+
+    res.status(200).json({
+      ownedFeeds: decryptedOwnedFeeds,
+      totalOwnedFeed: decryptedOwnedFeeds.length,
+      sharedFeeds: decryptedSharedFeeds,
+      totalSharedFeed: decryptedSharedFeeds.length,
+    });
   } catch(err) {
     res.status(400).json({error : err.message});
   }
@@ -119,4 +149,4 @@ export const deleteFeed = async (req, res) => {
   } catch(err) {
     res.status(400).json({error : err.message});
   }
-}
+};

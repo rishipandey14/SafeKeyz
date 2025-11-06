@@ -26,11 +26,13 @@ import authRouter from "./src/routes/auth.js";
 import profileRouter from "./src/routes/profile.js";
 import feedRouter from "./src/routes/feed.js";
 import statsRouter from "./src/routes/stats.js";
+import accessRouter from "./src/routes/access.js";
 
 app.use("/api", authRouter);
 app.use("/api", profileRouter);
 app.use("/api", feedRouter);
 app.use("/api", statsRouter);
+app.use("/api", accessRouter);
 
 connectDb()
   .then(() => {

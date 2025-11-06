@@ -34,9 +34,11 @@ const feedSchema = mongoose.Schema({
   },
   sharedWith: [
     {
-      user: {type: mongoose.Schema.Types.ObjectId, ref: "User", required: true},
-      accessLevel: {type: String, enum: ["view", "edit"], default: "view"},
+      emailId: {type: String, required: true, lowercase: true, trim: true},
+      user: {type: mongoose.Schema.Types.ObjectId, ref: "User"}, // Will be populated when user registers
+      permission: {type: String, enum: ["read", "write"], default: "read"},
       sharedAt: {type: Date, default: Date.now},
+      sharedBy: {type: mongoose.Schema.Types.ObjectId, ref: "User", required: true},
     },
   ],
   size: {type: Number, default: 0},  // Size in Bytes
