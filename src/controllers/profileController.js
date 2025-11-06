@@ -1,11 +1,40 @@
 import { validateEditProfileData } from "../utils/validation.js";
 import validator from "validator";
 import bcrypt from "bcrypt";
+import Feed from "../models/feed.js";
 
 export const profileView = async (req, res) => {
     try {
         const user = req.user;
-        res.send(user);
+        
+        // Get user's feeds to calculate stats
+        const feeds = await Feed.find({ owner: user._id });
+        
+        // Calculate statistics
+        const stats = {
+            totalCredentials: feeds.length,
+            storageUsed: user.storageUsed || 0,
+            storageLimit: user.storageLimit || (10 * 1024), // in bytes
+            storageUsedKB: ((user.storageUsed || 0) / 1024).toFixed(2),
+            storagePercentage: user.storageLimit ? ((user.storageUsed / user.storageLimit) * 100).toFixed(2) : 0,
+            subscription: user.subscription || 'free',
+            updatedAt: user.updatedAt,
+            accountCreated: user.createdAt,
+        };
+        
+        res.json({
+            user: {
+                _id: user._id,
+                firstName: user.firstName,
+                lastName: user.lastName,
+                emailId: user.emailId,
+                age: user.age,
+                gender: user.gender,
+                photoUrl: user.photoUrl,
+                subscription: user.subscription,
+            },
+            stats
+        });
     } catch (err) {
         res.status(400).json({
             error: err.message
