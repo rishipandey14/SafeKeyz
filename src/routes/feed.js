@@ -6,7 +6,7 @@ const feedRouter = express.Router();
 
 feedRouter.post('/feed/add', userAuth, createFeed);
 feedRouter.get("/feed", userAuth, getAllFeeds);
-feedRouter.put("/feed/:id", userAuth, updateFeed);
+feedRouter.patch("/feed/:id", userAuth, updateFeed);
 feedRouter.delete("/feed/:id", userAuth, deleteFeed);
 
 
