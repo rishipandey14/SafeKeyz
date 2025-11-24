@@ -14,7 +14,7 @@ export const profileView = async (req, res) => {
         const stats = {
             totalCredentials: feeds.length,
             storageUsed: user.storageUsed || 0,
-            storageLimit: user.storageLimit || (10 * 1024), // in bytes
+            storageLimit: user.storageLimit , // in bytes
             storageUsedKB: ((user.storageUsed || 0) / 1024).toFixed(2),
             storagePercentage: user.storageLimit ? ((user.storageUsed / user.storageLimit) * 100).toFixed(2) : 0,
             subscription: user.subscription || 'free',
