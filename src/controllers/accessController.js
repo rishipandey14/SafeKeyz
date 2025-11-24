@@ -5,6 +5,8 @@ export const giveAccess = async (req, res) => {
     try {
         const {feedId, email, permission} = req.body;
         const userId = req.user._id;
+        const normalizedEmail = email?.trim().toLowerCase();
+        const requesterEmail = req.user.emailId?.toLowerCase();
 
         // validation of incoming data
         if(!feedId || !email || !permission) {
@@ -48,17 +50,15 @@ export const giveAccess = async (req, res) => {
         }
 
         // check if the user is trying to share with themselves
-        if(email.toLowerCase() === req.user.emailId.toLowerCase()){
+        if(normalizedEmail === requesterEmail){
             return res.status(400).json({
                 success: false,
                 error: "You can't share a credential with yourself",
             });
         }
 
-        // check if already shared with this email
-        const alreadyShared = feed.sharedWith.find((share) => {
-            share.email.toLowerCase() === email.toLowerCase();
-        });
+        // check if already shared with this email (use emailId key, ensure return)
+        const alreadyShared = feed.sharedWith.find(share => share.emailId?.toLowerCase() === normalizedEmail);
         if(alreadyShared){
             return res.status(400).json({
                 success: false,
@@ -67,11 +67,11 @@ export const giveAccess = async (req, res) => {
         }
 
         // check if the email belongs to a registered user
-        const sharedUser = await User.findOne({emailId: email.toLowerCase()});
+        const sharedUser = await User.findOne({emailId: normalizedEmail});
 
         // add to shareWith array of feeds
         feed.sharedWith.push({
-            emailId: email,
+            emailId: normalizedEmail,
             user: sharedUser ? sharedUser : null,
             permission,
             sharedBy: userId,
