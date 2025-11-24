@@ -74,7 +74,7 @@ const userSchema = mongoose.Schema({
   },
   subscription: {type: String, enum: ["free", "premium"], default: "free"},
   storageUsed: {type: Number, default: 0},  // Storage in Bytes
-  storageLimit: {type: Number, default: 10 * 1024},  // 10 KB (in bytes) for free users
+  storageLimit: {type: Number, default: 50 * 1024},  // 50 KB (in bytes) for free users
   sharedFeeds: [{type: mongoose.Schema.Types.ObjectId, ref: "Feed"}],
 }, {timestamps : true});
 
