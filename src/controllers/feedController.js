@@ -86,8 +86,21 @@ export const getAllFeeds = async (req, res) => {
 
 export const updateFeed = async (req, res) => {
   try {
-    const feed = await Feed.findOne({_id : req.params.id, owner : req.user._id});
+    // Fetch feed by id first
+    const feed = await Feed.findById(req.params.id);
     if (!feed) return res.status(404).json({ message: 'Feed not found' });
+
+    const userId = req.user._id.toString();
+    const userEmail = req.user.emailId?.toLowerCase();
+    const isOwner = feed.owner.toString() === userId;
+    let hasWriteAccess = false;
+    if (!isOwner) {
+      const shareInfo = feed.sharedWith.find(sw => sw.emailId?.toLowerCase() === userEmail && sw.permission === 'write');
+      hasWriteAccess = !!shareInfo;
+    }
+    if (!isOwner && !hasWriteAccess) {
+      return res.status(403).json({ message: "You don't have permission to update this feed" });
+    }
 
     // Build the update object
     const updateObj = {};
@@ -126,7 +139,10 @@ export const updateFeed = async (req, res) => {
     });
 
     // Update user's storage usage
-    await updateUserStorage(req.user._id);
+    // Only owner storage usage should change; skip for shared edits
+    if (isOwner) {
+      await updateUserStorage(req.user._id);
+    }
 
     res.status(200).json({message : "updated Successfully"});
   } catch (err) {
