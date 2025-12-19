@@ -10,6 +10,56 @@ export const profileView = async (req, res) => {
         // Get user's feeds to calculate stats
         const feeds = await Feed.find({ owner: user._id });
         
+        // Helper: build last N days array
+        const buildDailyBuckets = (days = 30) => {
+            const today = new Date();
+            const start = new Date(today);
+            start.setHours(0, 0, 0, 0);
+            const buckets = [];
+            for (let i = days - 1; i >= 0; i--) {
+                const d = new Date(start);
+                d.setDate(start.getDate() - i);
+                const key = d.toISOString().slice(0, 10); // YYYY-MM-DD
+                buckets.push({ key, date: new Date(d), count: 0 });
+            }
+            return buckets;
+        };
+        
+        // Trend: credentials created per day (last 30 days)
+        const savedTrendBuckets = buildDailyBuckets(30);
+        const bucketIndexByKey = new Map(savedTrendBuckets.map((b, idx) => [b.key, idx]));
+        feeds.forEach(feed => {
+            if (!feed.createdAt) return;
+            const d = new Date(feed.createdAt);
+            const key = d.toISOString().slice(0, 10);
+            const idx = bucketIndexByKey.get(key);
+            if (idx !== undefined) savedTrendBuckets[idx].count += 1;
+        });
+        const savedTrend = savedTrendBuckets.map(b => ({ date: b.key, count: b.count }));
+        
+        // Sharing stats
+        const sharedItemsCount = feeds.filter(f => (f.sharedWith?.length || 0) > 0).length;
+        const totalAccessGrants = feeds.reduce((acc, f) => acc + (f.sharedWith?.length || 0), 0);
+        const perFeedAccessCounts = feeds.map(f => ({
+            feedId: f._id,
+            title: f.title,
+            count: f.sharedWith?.length || 0,
+        })).sort((a, b) => b.count - a.count);
+        
+        // Shares per day (events), last 30 days
+        const shareTrendBuckets = buildDailyBuckets(30);
+        const shareBucketIndexByKey = new Map(shareTrendBuckets.map((b, idx) => [b.key, idx]));
+        feeds.forEach(f => {
+            (f.sharedWith || []).forEach(sw => {
+                if (!sw?.sharedAt) return;
+                const d = new Date(sw.sharedAt);
+                const key = d.toISOString().slice(0, 10);
+                const idx = shareBucketIndexByKey.get(key);
+                if (idx !== undefined) shareTrendBuckets[idx].count += 1;
+            });
+        });
+        const shareTrend = shareTrendBuckets.map(b => ({ date: b.key, count: b.count }));
+        
         // Calculate statistics
         const stats = {
             totalCredentials: feeds.length,
@@ -20,6 +70,12 @@ export const profileView = async (req, res) => {
             subscription: user.subscription || 'free',
             updatedAt: user.updatedAt,
             accountCreated: user.createdAt,
+            // New dashboard metrics
+            savedTrend,
+            shareTrend,
+            sharedItemsCount,
+            totalAccessGrants,
+            perFeedAccessCounts,
         };
         
         res.json({
