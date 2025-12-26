@@ -32,7 +32,8 @@ app.use("/api", authRouter);
 app.use("/api", profileRouter);
 app.use("/api", feedRouter);
 app.use("/api", statsRouter);
-app.use("/api", accessRouter);
+// Mount access routes under /api/access to align with frontend paths
+app.use("/api/access", accessRouter);
 
 connectDb()
   .then(() => {

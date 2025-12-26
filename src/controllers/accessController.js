@@ -1,5 +1,6 @@
 import Feed from "../models/feed.js";
 import User from "../models/user.js";
+import { decrypt } from "../utils/crypto.js";
 
 export const giveAccess = async (req, res) => {
     try {
@@ -105,107 +106,134 @@ export const giveAccess = async (req, res) => {
     }
 }
 
+// Get credentials shared WITH this user
+export const getSharedWithMe = async (req, res) => {
+    try {
+        const userEmail = req.user.emailId?.toLowerCase();
+        const userId = req.user._id;
 
-//     try {
-//         const { feedId, email, permission } = req.body;
-//         const userId = req.user._id;
+        // Fetch feeds shared with this user
+        const sharedFeeds = await Feed.find({
+            "sharedWith.emailId": userEmail,
+        }).populate("owner", "firstName lastName emailId");
 
-//         // Validation
-//         if (!feedId || !email || !permission) {
-//             return res.status(400).json({
-//                 success: false,
-//                 error: "Feed ID, email, and permission are required",
-//             });
-//         }
+        const decryptedSharedFeeds = sharedFeeds.map(feed => {
+            const shareInfo = feed.sharedWith.find(
+                share => share.emailId?.toLowerCase() === userEmail
+            );
+            return {
+                _id: feed._id,
+                title: feed.title,
+                category: feed.category,
+                data: JSON.parse(decrypt(feed.data)),
+                owner: feed.owner,
+                permission: shareInfo?.permission || "read",
+                sharedAt: shareInfo?.sharedAt,
+                sharedBy: shareInfo?.sharedBy,
+                createdAt: feed.createdAt,
+                updatedAt: feed.updatedAt,
+            };
+        });
 
-//         if (!["read", "write"].includes(permission)) {
-//             return res.status(400).json({
-//                 success: false,
-//                 error: "Permission must be either 'read' or 'write'",
-//             });
-//         }
+        res.status(200).json({
+            success: true,
+            data: decryptedSharedFeeds,
+            total: decryptedSharedFeeds.length,
+        });
+    } catch (err) {
+        res.status(500).json({
+            success: false,
+            error: err.message,
+        });
+    }
+}
 
-//         // Validate email format
-//         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-//         if (!emailRegex.test(email)) {
-//             return res.status(400).json({
-//                 success: false,
-//                 error: "Invalid email format",
-//             });
-//         }
+// Get credentials shared BY this user
+export const getSharedByMe = async (req, res) => {
+    try {
+        const userId = req.user._id;
 
-//         // Find the feed
-//         const feed = await Feed.findById(feedId);
-//         if (!feed) {
-//             return res.status(404).json({
-//                 success: false,
-//                 error: "Credential not found",
-//             });
-//         }
+        // Fetch feeds owned by this user that have been shared
+        const feeds = await Feed.find({
+            owner: userId,
+            "sharedWith.0": { $exists: true }
+        });
 
-//         // Check if user is the owner
-//         if (feed.owner.toString() !== userId.toString()) {
-//             return res.status(403).json({
-//                 success: false,
-//                 error: "You don't have permission to share this credential",
-//             });
-//         }
+        const sharedData = feeds.map(feed => {
+            return {
+                _id: feed._id,
+                title: feed.title,
+                category: feed.category,
+                data: JSON.parse(decrypt(feed.data)),
+                owner: feed.owner,
+                sharedWithUsers: feed.sharedWith,
+                createdAt: feed.createdAt,
+                updatedAt: feed.updatedAt,
+            };
+        });
 
-//         // Check if user is trying to share with themselves
-//         if (email.toLowerCase() === req.user.emailId.toLowerCase()) {
-//             return res.status(400).json({
-//                 success: false,
-//                 error: "You cannot share a credential with yourself",
-//             });
-//         }
+        res.status(200).json({
+            success: true,
+            data: sharedData,
+            total: sharedData.length,
+        });
+    } catch (err) {
+        res.status(500).json({
+            success: false,
+            error: err.message,
+        });
+    }
+}
 
-//         // Check if already shared with this email
-//         const alreadyShared = feed.sharedWith.find(
-//             (share) => share.email.toLowerCase() === email.toLowerCase()
-//         );
+// Revoke access to a shared credential
+export const revokeAccess = async (req, res) => {
+    try {
+        const { feedId, email } = req.params;
+        const userId = req.user._id;
+        const normalizedEmail = email?.trim().toLowerCase();
 
-//         if (alreadyShared) {
-//             return res.status(400).json({
-//                 success: false,
-//                 error: "Credential already shared with this email",
-//             });
-//         }
+        // Find the feed
+        const feed = await Feed.findById(feedId);
+        if (!feed) {
+            return res.status(404).json({
+                success: false,
+                error: "Feed not found",
+            });
+        }
 
-//         // Check if the email belongs to a registered user
-//         const sharedUser = await User.findOne({ emailId: email.toLowerCase() });
+        // Check if user is the owner
+        if (feed.owner.toString() !== userId.toString()) {
+            return res.status(403).json({
+                success: false,
+                error: "You don't have permission to revoke access for this credential",
+            });
+        }
 
-//         // Add to sharedWith array
-//         feed.sharedWith.push({
-//             email: email.toLowerCase(),
-//             user: sharedUser ? sharedUser._id : null,
-//             permission,
-//             sharedBy: userId,
-//             sharedAt: new Date(),
-//         });
+        // Remove the share
+        feed.sharedWith = feed.sharedWith.filter(
+            share => share.emailId?.toLowerCase() !== normalizedEmail
+        );
 
-//         await feed.save();
+        await feed.save();
 
-//         // If user exists, add to their sharedFeeds array
-//         if (sharedUser) {
-//             if (!sharedUser.sharedFeeds.includes(feedId)) {
-//                 sharedUser.sharedFeeds.push(feedId);
-//                 await sharedUser.save();
-//             }
-//         }
+        // Remove feed from sharedUser's sharedFeeds array if it exists
+        const sharedUser = await User.findOne({ emailId: normalizedEmail });
+        if (sharedUser) {
+            sharedUser.sharedFeeds = sharedUser.sharedFeeds.filter(
+                id => id.toString() !== feedId
+            );
+            await sharedUser.save();
+        }
 
-//         res.status(200).json({
-//             success: true,
-//             message: `Credential shared successfully with ${email}`,
-//             data: {
-//                 feedId: feed._id,
-//                 sharedWith: feed.sharedWith[feed.sharedWith.length - 1],
-//             },
-//         });
-//     } catch (err) {
-//         console.error("Error sharing credential:", err);
-//         res.status(500).json({
-//             success: false,
-//             error: err.message,
-//         });
-//     }
-// };
+        res.status(200).json({
+            success: true,
+            message: "Access revoked successfully",
+        });
+    } catch (err) {
+        res.status(500).json({
+            success: false,
+            error: err.message,
+        });
+    }
+}
+
