@@ -17,7 +17,9 @@ jobs:
           username: ubuntu
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
-            cd projects/SafeKeyz
+            cd ~/project/SafeKeyz
             git pull origin main
-            docker compose down
-            docker compose up -d --build
+
+            cd ~/project/infra
+            docker compose -f docker-compose.prod.yml down
+            docker compose -f docker-compose.prod.yml up -d --build
