@@ -3,7 +3,7 @@ FROM node:20
 WORKDIR /app
 
 COPY package*.json ./
-RUN npm install -g nodemon && npm install
+RUN npm install -g nodemon && npm ci
 
 # Only copy source after dependencies to optimize cache
 COPY . .
