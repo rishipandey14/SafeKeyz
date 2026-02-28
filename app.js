@@ -8,7 +8,7 @@ import cookieParser from "cookie-parser";
 import cors from "cors";
 
 // Development-only: always use local frontend URL by default
-const allowedOrigin = process.env.FRONTEND_URL_LOCAL || "http://localhost:5173";
+const allowedOrigin = "http://54.219.165.66" || "http://localhost:5173";
 
 app.use(
   cors({
