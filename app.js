@@ -7,16 +7,22 @@ import connectDb from "./src/config/database.js";
 import cookieParser from "cookie-parser";
 import cors from "cors";
 
-// Development-only: always use local frontend URL by default
-const allowedOrigin = "http://54.219.165.66" || "http://localhost:5173";
 
-app.use(
-  cors({
-    origin: allowedOrigin,
-    credentials: true,
-    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-  })
-);
+const allowedOrigins = [
+  "http://localhost:5173",
+  "http://54.219.165.66"
+];
+
+app.use(cors({
+  origin: function (origin, callback) {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error("Not allowed by CORS"));
+    }
+  },
+  credentials: true
+}));
 
 // Increase JSON body size limit to allow small base64 image uploads in dev (adjust as needed)
 app.use(express.json({ limit: "1mb" }));
