@@ -28,6 +28,10 @@ import feedRouter from "./src/routes/feed.js";
 import statsRouter from "./src/routes/stats.js";
 import accessRouter from "./src/routes/access.js";
 
+app.get("/", (req, res) => {
+  res.send("SafeKeyz Backend is Running 🚀");
+});
+
 app.use("/api", authRouter);
 app.use("/api", profileRouter);
 app.use("/api", feedRouter);
