@@ -11,7 +11,8 @@ import cors from "cors";
 const allowedOrigins = [
   "http://localhost:5173",
   "http://54.219.165.66",
-  "http://54.219.165.66:80"
+  "http://54.219.165.66:80",
+  "https://safekeyz.vercel.app"
 ];
 
 app.use(cors({
