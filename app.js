@@ -12,6 +12,7 @@ const allowedOrigins = [
   "http://localhost:5173",
   "http://54.219.165.66",
   "http://54.219.165.66:80",
+  "https://safekeyz-backend.vercel.app",
   "https://safekeyz.vercel.app"
 ];
 
