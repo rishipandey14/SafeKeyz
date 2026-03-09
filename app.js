@@ -13,7 +13,8 @@ const allowedOrigins = [
   "http://54.219.165.66",
   "http://54.219.165.66:80",
   "https://safekeyz-backend.vercel.app",
-  "https://safekeyz.vercel.app"
+  "https://safekeyz.vercel.app",
+  "https://safekeyz-git-main-rishis-projects-9c994ea7.vercel.app"
 ];
 
 app.use(cors({
