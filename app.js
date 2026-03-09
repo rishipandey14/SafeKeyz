@@ -13,13 +13,21 @@ const allowedOrigins = [
   "http://54.219.165.66",
   "http://54.219.165.66:80",
   "https://safekeyz-backend.vercel.app",
-  "https://safekeyz.vercel.app",
-  "https://safekeyz-git-main-rishis-projects-9c994ea7.vercel.app"
+  "https://safekeyz.vercel.app"
 ];
+
+// Regex to match all Vercel preview URLs for both frontend projects
+const vercelPreviewPattern = /^https:\/\/safekeyz(-git-\w+)?(-[\w-]+)?\.vercel\.app$/;
 
 app.use(cors({
   origin: function (origin, callback) {
-    if (!origin || allowedOrigins.includes(origin)) {
+    // Allow requests with no origin (like mobile apps or curl)
+    if (!origin) {
+      return callback(null, true);
+    }
+    
+    // Check if origin is in allowedOrigins or matches Vercel preview pattern
+    if (allowedOrigins.includes(origin) || vercelPreviewPattern.test(origin)) {
       callback(null, true);
     } else {
       callback(new Error("Not allowed by CORS"));
