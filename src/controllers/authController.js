@@ -5,6 +5,18 @@ import { createToken } from "../utils/customJWTToken.js";
 import Device from "../models/device.js";
 import useragent from "useragent";
 
+const getCookieOptions = () => {
+    const isProduction = process.env.NODE_ENV === "production" || process.env.VERCEL === "1";
+
+    return {
+        httpOnly: true,
+        secure: isProduction,
+        sameSite: isProduction ? "None" : "Lax",
+        expires: new Date(Date.now() + 8 * 3600000), // 8 hours
+        path: "/",
+    };
+};
+
 export const signup = async (req, res) => {
     try {
         // validation of data
@@ -29,13 +41,7 @@ export const signup = async (req, res) => {
         const token = createToken(user);  // create JWT token
     
         // add the token in cookie and send response back to the user
-        res.cookie("token", token, {
-            httpOnly: true,
-            secure: false,
-            sameSite: "Lax",
-            expires: new Date(Date.now() + 8 * 3600000), // 8 hours
-            path: "/",
-        });
+        res.cookie("token", token, getCookieOptions());
     
         await user.save();
 
@@ -93,13 +99,7 @@ export const login = async (req, res) => {
             const token = createToken(user);  // create JWT token
         
             // add the token in cookie and send response back to the user
-            res.cookie("token", token, {
-                httpOnly: true,
-                secure: false,
-                sameSite: "Lax",
-                expires: new Date(Date.now() + 8 * 3600000),
-                path: "/",
-            });
+            res.cookie("token", token, getCookieOptions());
             res.json({
                 message: "Login successfully",
                 data: user,
@@ -114,10 +114,12 @@ export const login = async (req, res) => {
 }
 
 export const logout = async (req, res) => {
+    const isProduction = process.env.NODE_ENV === "production" || process.env.VERCEL === "1";
+
     res.clearCookie("token", {
         httpOnly: true,
-        secure: false,
-        sameSite: "Lax",
+        secure: isProduction,
+        sameSite: isProduction ? "None" : "Lax",
         path: "/",
     });
 
