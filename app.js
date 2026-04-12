@@ -19,22 +19,28 @@ const allowedOrigins = [
 // Regex to match all Vercel preview URLs for both frontend projects
 const vercelPreviewPattern = /^https:\/\/safekeyz(-git-\w+)?(-[\w-]+)?\.vercel\.app$/;
 
-app.use(cors({
+const corsOptions = {
   origin: function (origin, callback) {
-    // Allow requests with no origin (like mobile apps or curl)
+    // Allow requests with no origin (like curl/postman/mobile apps)
     if (!origin) {
       return callback(null, true);
     }
-    
-    // Check if origin is in allowedOrigins or matches Vercel preview pattern
-    if (allowedOrigins.includes(origin) || vercelPreviewPattern.test(origin)) {
-      callback(null, true);
-    } else {
-      callback(new Error("Not allowed by CORS"));
-    }
+
+    const isAllowed =
+      allowedOrigins.includes(origin) ||
+      vercelPreviewPattern.test(origin) ||
+      /^https:\/\/[\w-]+\.vercel\.app$/.test(origin);
+
+    // Return false instead of throwing to avoid opaque preflight failures.
+    callback(null, isAllowed);
   },
-  credentials: true
-}));
+  credentials: true,
+  methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"],
+};
+
+app.use(cors(corsOptions));
+app.options("*", cors(corsOptions));
 
 // Increase JSON body size limit to allow small base64 image uploads in dev (adjust as needed)
 app.use(express.json({ limit: "1mb" }));
