@@ -1,4 +1,5 @@
 import Favourite from "../models/favourite.js";
+import { decrypt } from "../utils/crypto.js";
 
 
 export const changeFavStatus = async (req, res) => {
@@ -32,8 +33,17 @@ export const getAllFav = async (req, res) => {
     try{
         const userId = req.user._id;
         const favData = await Favourite.find({userId}).populate("feedId");
+
+        const decryptedFavData = favData.map((fav) => ({
+            ...fav.toObject(),
+            feedId: {
+                ...fav.feedId.toObject(),
+                data: JSON.parse(decrypt(fav.feedId.data)),
+            },
+        }));
+
         res.json({
-            Data: favData
+            Data: decryptedFavData
         });
     } catch (err) {
         res.status(500).json({error : err.message});

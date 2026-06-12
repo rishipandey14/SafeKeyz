@@ -2,6 +2,7 @@ import Feed from "../models/feed.js";
 import { encrypt, decrypt } from "../utils/crypto.js";
 import { updateUserStorage, hasExceededStorageLimit, wouldExceedStorageLimit } from "../utils/storage.js";
 import User from "../models/user.js";
+import Favourite from "../models/favourite.js";
 
 
 export const createFeed = async (req, res) => {
@@ -44,43 +45,76 @@ export const getAllFeeds = async (req, res) => {
     const userId = req.user._id;
     const userEmail = req.user.emailId;
 
-    // Fetch user's own feeds
-    const ownedFeeds = await Feed.find({owner : userId});
+    // User's feeds
+    const ownedFeeds = await Feed.find({ owner: userId });
 
-    const decryptedOwnedFeeds = ownedFeeds.map(feed => ({
+    // User favourites
+    const favourites = await Favourite.find({ userId });
+
+    const favouriteFeedIds = new Set(
+      favourites.map((f) => f.feedId.toString())
+    );
+
+    const decryptedOwnedFeeds = ownedFeeds.map((feed) => ({
       ...feed.toObject(),
-      data : JSON.parse(decrypt(feed.data)),
+      data: JSON.parse(decrypt(feed.data)),
       isOwner: true,
+      isFavourite: favouriteFeedIds.has(
+        feed._id.toString()
+      ),
     }));
 
-    // Fetch feeds shared with this user
+    // Shared feeds
     const sharedFeeds = await Feed.find({
-      "sharedWith.emailId" : userEmail,
-    }).populate("owner", "firstName lastName emailId");
+      "sharedWith.emailId": userEmail,
+    }).populate(
+      "owner",
+      "firstName lastName emailId"
+    );
 
-    // console.log("SharedFeeds -> ", sharedFeeds);
+    const decryptedSharedFeeds = sharedFeeds.map(
+      (feed) => {
+        const shareInfo = feed.sharedWith.find(
+          (share) =>
+            share.emailId?.toLowerCase() ===
+            userEmail?.toLowerCase()
+        );
 
-    const decryptedSharedFeeds = sharedFeeds.map(feed => {
-      const shareInfo = feed.sharedWith.find(
-        share => share.emailId?.toLowerCase() === userEmail?.toLowerCase()
-      );
-      const { sharedWith, ...feedWithoutSharedWith } = feed.toObject();
-      return {
-        ...feedWithoutSharedWith,
-        data: JSON.parse(decrypt(feed.data)),
-        permission: shareInfo?.permission || "read",
-        sharedAt: shareInfo?.sharedAt,
-      };
-    });
+        const {
+          sharedWith,
+          ...feedWithoutSharedWith
+        } = feed.toObject();
+
+        return {
+          ...feedWithoutSharedWith,
+          data: JSON.parse(
+            decrypt(feed.data)
+          ),
+          permission:
+            shareInfo?.permission || "read",
+          sharedAt: shareInfo?.sharedAt,
+
+          // Optional
+          isFavourite:
+            favouriteFeedIds.has(
+              feed._id.toString()
+            ),
+        };
+      }
+    );
 
     res.status(200).json({
       ownedFeeds: decryptedOwnedFeeds,
-      totalOwnedFeed: decryptedOwnedFeeds.length,
+      totalOwnedFeed:
+        decryptedOwnedFeeds.length,
       sharedFeeds: decryptedSharedFeeds,
-      totalSharedFeed: decryptedSharedFeeds.length,
+      totalSharedFeed:
+        decryptedSharedFeeds.length,
     });
-  } catch(err) {
-    res.status(400).json({error : err.message});
+  } catch (err) {
+    res.status(400).json({
+      error: err.message,
+    });
   }
 };
 
