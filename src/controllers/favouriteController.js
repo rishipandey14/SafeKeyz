@@ -1,12 +1,11 @@
-import Favourite from "../models/favourite";
+import Favourite from "../models/favourite.js";
 
 
-export const favouriteManager = async (req, res) => {
+export const changeFavStatus = async (req, res) => {
     try{
         const userId = req.user._id;
-        const {credentialId} = req.params;
-
-        const isFav = await Favourite.findOne({userId, credentialId});
+        const {feedId} = req.body;
+        const isFav = await Favourite.findOne({userId, feedId});
 
         if(isFav) {
             await Favourite.findByIdAndDelete(isFav._id);
@@ -17,11 +16,24 @@ export const favouriteManager = async (req, res) => {
             });
         }
 
-        await Favourite.create({userId, credentialId});
+        await Favourite.create({userId, feedId});
 
         res.json({
             success: true,
-            isFavourite: false,
+            isFavourite: true,
+        });
+    } catch (err) {
+        res.status(500).json({error : err.message});
+    }
+};
+
+
+export const getAllFav = async (req, res) => {
+    try{
+        const userId = req.user._id;
+        const favData = await Favourite.find({userId}).populate("feedId");
+        res.json({
+            Data: favData
         });
     } catch (err) {
         res.status(500).json({error : err.message});

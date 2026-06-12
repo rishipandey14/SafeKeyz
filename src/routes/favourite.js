@@ -1,9 +1,12 @@
 import express from "express";
-import { userAuth } from "../middlewares/auth";
-import { favouriteManager } from "../controllers/favouriteController";
+import { userAuth } from "../middlewares/auth.js";
+import { changeFavStatus, getAllFav } from "../controllers/favouriteController.js";
 
 const favouriteRouter = express.Router();
 
-favouriteRouter.post('/favourite/:credentialId', userAuth, favouriteManager);
+// to add as a fav and remove
+favouriteRouter.post('/favourite', userAuth, changeFavStatus);
+favouriteRouter.get('/get-favourites', userAuth, getAllFav);
+
 
 export default favouriteRouter;

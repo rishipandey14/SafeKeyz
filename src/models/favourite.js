@@ -7,7 +7,7 @@ const favouriteSchema = mongoose.Schema(
             ref: "User",
             required: true,
         },
-        credentialId: {
+        feedId: {
             type: mongoose.Schema.Types.ObjectId,
             ref: "Feed",
             required: true,
@@ -19,7 +19,7 @@ const favouriteSchema = mongoose.Schema(
 );
 
 favouriteSchema.index(
-    {userId: 1, credentialId: 1},
+    {userId: 1, feedId: 1},
     {unique: true}
 );
 
